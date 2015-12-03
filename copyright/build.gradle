@@ -46,67 +46,78 @@ task fileNames << {
 }
 
 
+apply plugin: CopyrightPlugin
 
-task cleanup << {
-    FileTree files = fileTree(projectDir){
-        include '**/*.java.bk'
-    }
-    files.each {File f ->
-        f.delete()
-    }
-}
-
-task revert << {
-    FileTree files = fileTree(projectDir){
-        include '**/*.java'
-    }
-    String template = file('src/resources/copyright.tpl').getText()
-    String path
-    File tmp
-    files.each {File f ->
-        path = f.getAbsolutePath()
-        println path
-        if (f.getText().startsWith(template)) {
-            tmp = file(new File(path + ".tmp"))
-            tmp.createNewFile()
-            tmp << f.getText().replace(template, "")
-            tmp.renameTo(path)
-            if (f.getText().startsWith(template)){
-                throw new Error("The text was not reverted")
+class CopyrightPlugin implements Plugin<Project> {
+    void apply(Project project) {
+        project.extensions.create("copyright", CopyrightPluginExtension)
+        project.task('cleanup') << {
+            FileTree files = project.fileTree(project.projectDir) {
+                include '**/*.bk'
+            }
+            files.each { File f ->
+                f.delete()
             }
         }
-    }
-}
 
-
-task copyright << {
-    FileTree files = fileTree(projectDir){
-        include '**/*.java'
-    }
-
-    String template = file('src/resources/copyright.tpl').getText()
-    println template
-    String path
-    File tmp, bk
-
-    files.each {File f ->
-        path = f.getAbsolutePath()
-        println path
-        if (!f.getText().startsWith(template)) {
-            bk = file(new File(path + ".bk"))
-            bk.createNewFile()
-            bk << f.getText()
-            tmp = file(new File(path + ".tmp"))
-            tmp.createNewFile()
-            tmp << template + f.getText()
-            if (tmp.getText().startsWith(template)){
-                tmp.renameTo(path)
-                if (!f.getText().startsWith(template)){
-                    throw new Error("The text was not copied")
+        project.task('revert') << {
+            FileTree files = project.fileTree(project.projectDir) {
+                include project.copyright.filePattern
+            }
+            String template = project.file(project.copyright.template).getText()
+            String path
+            File tmp
+            files.each { File f ->
+                path = f.getAbsolutePath()
+                println path
+                if (f.getText().startsWith(template)) {
+                    tmp = project.file(new File(path + ".tmp"))
+                    tmp.createNewFile()
+                    tmp << f.getText().replace(template, "")
+                    tmp.renameTo(path)
+                    if (f.getText().startsWith(template)) {
+                        throw new Error("The text was not reverted")
+                    }
                 }
-            } else {
-                throw new Error("The text was not copied")
+            }
+        }
+
+        project.task('addCopyright') << {
+            FileTree files = project.fileTree(project.projectDir) {
+                include project.copyright.filePattern
+            }
+
+            String template = project.file(project.copyright.template).getText()
+            println template
+            String path
+            File tmp, bk
+
+            files.each { File f ->
+                path = f.getAbsolutePath()
+                println path
+                if (!f.getText().startsWith(template.trim())) {
+                    bk = project.file(new File(path + ".bk"))
+                    bk.createNewFile()
+                    bk << f.getText()
+                    tmp = project.file(new File(path + ".tmp"))
+                    tmp.createNewFile()
+                    tmp << template + f.getText()
+                    if (tmp.getText().startsWith(template)) {
+                        tmp.renameTo(path)
+                        if (!f.getText().startsWith(template)) {
+                            throw new Error("The text was not copied")
+                        }
+                    } else {
+                        throw new Error("The text was not copied")
+                    }
+                }
             }
         }
     }
+
+}
+
+class CopyrightPluginExtension {
+    String template = 'src/resources/copyright.tpl'
+    String filePattern = "**/*.java"
 }
