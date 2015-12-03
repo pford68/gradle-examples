@@ -1,17 +1,23 @@
 
 apply plugin: CopyrightPlugin
 
+
+
 class CopyrightPlugin implements Plugin<Project> {
+    void cleanup(Project project) {
+        FileTree files = project.fileTree(project.projectDir) {
+            include '**/*.bk'
+        }
+        files.each { File f ->
+            f.delete()
+        }
+    }
+
     void apply(Project project) {
         project.extensions.create("copyright", CopyrightPluginExtension)
-        
+
         project.task('cleanup') << {
-            FileTree files = project.fileTree(project.projectDir) {
-                include '**/*.bk'
-            }
-            files.each { File f ->
-                f.delete()
-            }
+            cleanup(project)
         }
 
         project.task('revert') << {
@@ -42,13 +48,11 @@ class CopyrightPlugin implements Plugin<Project> {
             }
 
             String template = project.file(project.copyright.template).getText()
-            println template
             String path
             File tmp, bk
 
             files.each { File f ->
                 path = f.getAbsolutePath()
-                println path
                 if (!f.getText().startsWith(template.trim())) {
                     bk = project.file(new File(path + ".bk"))
                     bk.createNewFile()
@@ -58,7 +62,9 @@ class CopyrightPlugin implements Plugin<Project> {
                     tmp << template + f.getText()
                     if (tmp.getText().startsWith(template)) {
                         tmp.renameTo(path)
-                        if (!f.getText().startsWith(template)) {
+                        if (f.getText().startsWith(template)) {
+                            println path
+                        } else {
                             throw new Error("The text was not copied")
                         }
                     } else {
@@ -67,6 +73,17 @@ class CopyrightPlugin implements Plugin<Project> {
                 }
             }
         }
+
+        project.tasks.addCopyright.doFirst {
+            println "[CopyrightPlugin] Starting to add copyrights"
+        }
+
+        project.tasks.addCopyright.doLast {
+            if (project.copyright.cleanup == true){
+                cleanup(project)
+            }
+            println "[CopyrightPlugin] Finished adding copyrights"
+        }
     }
 
 }
@@ -74,6 +91,7 @@ class CopyrightPlugin implements Plugin<Project> {
 class CopyrightPluginExtension {
     String template = 'src/resources/copyright.tpl'
     String filePattern = "**/*.java"
+    boolean cleanup = true
 }
 
 
