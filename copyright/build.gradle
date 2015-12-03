@@ -7,6 +7,12 @@ apply from: 'copyright.gradle'
 
 sourceCompatibility = 1.7
 
+copyright {
+    template 'src/resources/myGreatTemplate.txt'
+    filePattern '**/*.java'
+    cleanup true
+}
+
 repositories {
     mavenCentral()
 }

@@ -1,0 +1,8 @@
+/**************************************************
+ * Hello, from My Great Copyright Template        *
+ *                                                *
+ * Copyright Macedon 2001, 2015                   *
+ *                                                *
+ * All rights reserved!!!!!!!                     *
+ **************************************************/
+
