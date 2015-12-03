@@ -4,6 +4,7 @@ apply plugin: CopyrightPlugin
 class CopyrightPlugin implements Plugin<Project> {
     void apply(Project project) {
         project.extensions.create("copyright", CopyrightPluginExtension)
+        
         project.task('cleanup') << {
             FileTree files = project.fileTree(project.projectDir) {
                 include '**/*.bk'
@@ -74,3 +75,5 @@ class CopyrightPluginExtension {
     String template = 'src/resources/copyright.tpl'
     String filePattern = "**/*.java"
 }
+
+
