@@ -92,7 +92,7 @@ task copyright << {
     files.each {File f ->
         path = f.getAbsolutePath()
         println path
-        if (!f.getText().startsWith(template)) {
+        if (!f.getText().startsWith(template.trim())) {
             bk = file(new File(path + ".bk"))
             bk.createNewFile()
             bk << f.getText()
