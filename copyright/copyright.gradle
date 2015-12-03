@@ -1,0 +1,76 @@
+
+apply plugin: CopyrightPlugin
+
+class CopyrightPlugin implements Plugin<Project> {
+    void apply(Project project) {
+        project.extensions.create("copyright", CopyrightPluginExtension)
+        project.task('cleanup') << {
+            FileTree files = project.fileTree(project.projectDir) {
+                include '**/*.bk'
+            }
+            files.each { File f ->
+                f.delete()
+            }
+        }
+
+        project.task('revert') << {
+            FileTree files = project.fileTree(project.projectDir) {
+                include project.copyright.filePattern
+            }
+            String template = project.file(project.copyright.template).getText()
+            String path
+            File tmp
+            files.each { File f ->
+                path = f.getAbsolutePath()
+                println path
+                if (f.getText().startsWith(template)) {
+                    tmp = project.file(new File(path + ".tmp"))
+                    tmp.createNewFile()
+                    tmp << f.getText().replace(template, "")
+                    tmp.renameTo(path)
+                    if (f.getText().startsWith(template)) {
+                        throw new Error("The text was not reverted")
+                    }
+                }
+            }
+        }
+
+        project.task('addCopyright') << {
+            FileTree files = project.fileTree(project.projectDir) {
+                include project.copyright.filePattern
+            }
+
+            String template = project.file(project.copyright.template).getText()
+            println template
+            String path
+            File tmp, bk
+
+            files.each { File f ->
+                path = f.getAbsolutePath()
+                println path
+                if (!f.getText().startsWith(template.trim())) {
+                    bk = project.file(new File(path + ".bk"))
+                    bk.createNewFile()
+                    bk << f.getText()
+                    tmp = project.file(new File(path + ".tmp"))
+                    tmp.createNewFile()
+                    tmp << template + f.getText()
+                    if (tmp.getText().startsWith(template)) {
+                        tmp.renameTo(path)
+                        if (!f.getText().startsWith(template)) {
+                            throw new Error("The text was not copied")
+                        }
+                    } else {
+                        throw new Error("The text was not copied")
+                    }
+                }
+            }
+        }
+    }
+
+}
+
+class CopyrightPluginExtension {
+    String template = 'src/resources/copyright.tpl'
+    String filePattern = "**/*.java"
+}
