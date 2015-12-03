@@ -10,7 +10,7 @@ package com.macedon.examples;
 /**
  * Um, what?
  */
-public class WTF {
+public class MyGreatClass {
     public static void main(String[] args){
         System.out.println("WTF?");
     }
