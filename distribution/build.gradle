@@ -1,0 +1,65 @@
+group 'com.macedon.gradle.examples'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'java'
+
+subprojects {
+    apply plugin: 'java'
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        testCompile group: 'junit', name: 'junit', version: '4.11'
+    }
+}
+
+
+project(':application'){
+
+    dependencies {
+        compile project(':core')
+    }
+}
+
+
+project(':client'){
+    apply plugin: 'war'
+
+    war {
+        from 'src'
+    }
+}
+
+
+task prepackaging(type:Copy){
+    /*
+
+    -- Make new directories:  lib, descriptors, etc.
+    -- Copy subproject artifacts to each subDirs lib.
+     */
+    ['descriptors', 'lib', 'doc', 'resources', 'web'].each { s ->
+        project.file('dest/core/' + s).mkdirs()
+        project.file('dest/application/' + s).mkdirs()
+    }
+
+    from new File(project(':scripts').projectDir, "image")
+    into('dest')
+
+    subprojects.each { subproject ->
+        from(subproject.jar) {
+            into("${subproject.name}/lib")
+            //into('../../test/lib')
+        }
+    }
+
+}
+
+
+
+task dist(type:Zip, dependsOn:prepackaging){
+    from ('dest')
+
+}
+
