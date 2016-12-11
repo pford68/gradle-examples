@@ -3,35 +3,6 @@ version '1.0-SNAPSHOT'
 
 apply plugin: 'java'
 
-subprojects {
-    apply plugin: 'java'
-
-    repositories {
-        mavenCentral()
-    }
-
-    dependencies {
-        testCompile group: 'junit', name: 'junit', version: '4.11'
-    }
-}
-
-
-project(':application'){
-
-    dependencies {
-        compile project(':core')
-    }
-}
-
-
-project(':client'){
-    apply plugin: 'war'
-
-    war {
-        from 'src'
-    }
-}
-
 
 task prepackaging(type:Copy){
     /*

@@ -1,3 +1,5 @@
+rootProject.name = 'gradle-examples'
+
 includeFlat 'copyright'
-includeFlat 'distribution:appplication', 'distribution:core', 'distribution:scripts', 'distribution:client'
+includeFlat 'console-app', 'core', 'web-client', 'distribution', 'scripts'
 includeFlat 'helloworld'
