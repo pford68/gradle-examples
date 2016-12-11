@@ -1,3 +1,0 @@
-rootProject.name = 'distribution'
-include 'core', 'application', 'scripts', 'client'
-
