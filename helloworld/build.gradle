@@ -39,3 +39,4 @@ task intro (dependsOn:hello) << {
 }
 
 
+apply from: 'greeting.gradle'

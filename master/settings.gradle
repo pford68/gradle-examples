@@ -1,5 +1,0 @@
-rootProject.name = 'gradle-examples'
-
-includeFlat 'copyright'
-includeFlat 'console-app', 'core', 'web-client', 'distribution', 'scripts'
-includeFlat 'helloworld'
