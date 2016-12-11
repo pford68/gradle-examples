@@ -1,0 +1,3 @@
+includeFlat 'copyright'
+includeFlat 'distribution:appplication', 'distribution:core', 'distribution:scripts', 'distribution:client'
+includeFlat 'helloworld'
