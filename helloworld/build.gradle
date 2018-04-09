@@ -1,42 +1,4 @@
-task hello {
-   doLast {
-     println "Hello, World!"
-   }
+dependencies {
+   testCompile gradleTestKit()
+   testCompile 'junit:junit:4.12'
 }
-
-
-// Short way to do the same task as Hello
-task helloAgain << {
-   println "Hello again, World!"
-}
-
-task upper << {
-   String str = "mY_nAmE"
-   println "Original: " + str
-   println "Upper case: " + str.toUpperCase()
-}
-
-
-task count << {
-   4.times { print "$it " }
-}
-
-
-// Note that taskX, which depends on taskY, is declared before the task
-// on which it depends.  This is useful, but it is not necessary, as
-// task intro shows.
-task taskX(dependsOn: 'taskY') << {
-   println 'taskX'
-}
-
-task taskY << {
-   println 'taskY'
-}
-
-
-task intro (dependsOn:hello) << {
-  println "I'm Gradle"
-}
-
-
-apply from: 'greeting.gradle'
